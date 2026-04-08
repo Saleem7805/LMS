@@ -52,66 +52,60 @@ public class StudentService {
      }
  	
  	
- 	public StudentModel addStudentDataModel(StudentDataCollectionDTO dto) {
+ 	public StudentModel addStudentDataModel(String pid, StudentDataCollectionDTO dto) {
 
- 	    StudentModel studentModel = new StudentModel();
+ 	    return sr.findById(pid).map(student -> {
 
- 	    // Basic Info
- 	    studentModel.setCity(dto.getCity());
- 	    studentModel.setTime_Difference(dto.getTime_Difference());
- 	    studentModel.setHighest_Qualification(dto.getHighest_Qualification());
- 	    studentModel.setYear_of_Graduation(dto.getYear_of_Graduation());
- 	    studentModel.setBackground(dto.getBackgroundType());
- 	    studentModel.setBackground(dto.getBackground());
+ 	        // 🔹 Basic Info
+ 	        student.setCity(dto.getCity());
+ 	        student.setTime_Difference(dto.getTime_Difference());
+ 	        student.setHighest_Qualification(dto.getHighest_Qualification());
+ 	        student.setYear_of_Graduation(dto.getYear_of_Graduation());
+ 	        student.setBackground(dto.getBackground());
 
- 	    // Work Info
- 	    
- 	    studentModel.setWork_Experience(dto.getWork_Experience());
+ 	        // 🔹 Work Info
+ 	        student.setWork_Experience(dto.getWork_Experience());
 
- 	    // Technical Awareness
- 	    studentModel.setProgrammingAwareness(dto.getProgrammingAwareness());
- 	    studentModel.setToolsFamiliarWith(dto.getToolsFamiliarWith());
- 	    studentModel.setDsTools(dto.getDsTools());
+ 	        // 🔹 Technical Awareness
+ 	        student.setProgrammingAwareness(dto.getProgrammingAwareness());
+ 	        student.setToolsFamiliarWith(dto.getToolsFamiliarWith());
+ 	        student.setDsTools(dto.getDsTools());
 
- 	    // Projects
- 	    studentModel.setWorkedOnProjects(dto.getWorkedOnProjects());
- 	    studentModel.setProjectDescription(dto.getProjectDescription());
+ 	        // 🔹 Projects
+ 	        student.setWorkedOnProjects(dto.getWorkedOnProjects());
+ 	        student.setProjectDescription(dto.getProjectDescription());
 
- 	    // Professional Info
- 	   
- 	    studentModel.setCareerGap(dto.getCareerGap());
- 	    studentModel.setYearsOfCareerGap(dto.getYearsOfCareerGap());
+ 	        // 🔹 Professional Info
+ 	        student.setCareerGap(dto.getCareerGap());
+ 	        student.setYearsOfCareerGap(dto.getYearsOfCareerGap());
 
- 	    studentModel.setCurrentRole(dto.getCurrentRole());
- 	    studentModel.setRoleDescription(dto.getRoleDescription());
- 	    studentModel.setCurrentResponsibilities(dto.getCurrentResponsibilities());
+ 	        student.setCurrentRole(dto.getCurrentRole());
+ 	        student.setRoleDescription(dto.getRoleDescription());
+ 	        student.setCurrentResponsibilities(dto.getCurrentResponsibilities());
 
- 	    // Project Details
- 	    studentModel.setProjectName(dto.getProjectName());
- 	    studentModel.setToolsAndTechnologies(dto.getToolsAndTechnologies());
+ 	        // 🔹 Project Details
+ 	        student.setProjectName(dto.getProjectName());
+ 	        student.setToolsAndTechnologies(dto.getToolsAndTechnologies());
 
- 	    // Career Info
- 	    
- 	    studentModel.setTargetedRole(dto.getTargetedRole());
- 	    studentModel.setExpectedJobTimeline(dto.getExpectedJobTimeline());
+ 	        // 🔹 Career Info
+ 	        student.setTargetedRole(dto.getTargetedRole());
+ 	        student.setExpectedJobTimeline(dto.getExpectedJobTimeline());
 
- 	    studentModel.setCurrentCTC(dto.getCurrentCTC());
- 	    studentModel.setExpectedCTC(dto.getExpectedCTC());
+ 	        student.setCurrentCTC(dto.getCurrentCTC());
+ 	        student.setExpectedCTC(dto.getExpectedCTC());
 
- 	    studentModel.setPreferredJobLocation(dto.getPreferredJobLocation());
- 	    studentModel.setCurrentJobLocation(dto.getCurrentJobLocation());
+ 	        student.setPreferredJobLocation(dto.getPreferredJobLocation());
+ 	        student.setCurrentJobLocation(dto.getCurrentJobLocation());
 
- 	    // Social Links
- 	    studentModel.setLinkedInUrl(dto.getLinkedInUrl());
- 	    studentModel.setHackerRankUrl(dto.getHackerRankUrl());
- 	    studentModel.setGithubUrl(dto.getGithubUrl());
- 	    studentModel.setNaukriUrl(dto.getNaukriUrl());
+ 	        // 🔹 Social Links
+ 	        student.setLinkedInUrl(dto.getLinkedInUrl());
+ 	        student.setHackerRankUrl(dto.getHackerRankUrl());
+ 	        student.setGithubUrl(dto.getGithubUrl());
+ 	        student.setNaukriUrl(dto.getNaukriUrl());
 
- 	    // Resume
- 	    
+ 	        // ✅ Save updated student
+ 	        return sr.save(student);
 
- 	    return sr.save(studentModel);
- 	    
+ 	    }).orElse(null); // if pid not found
  	}
- 	
 }

@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -26,4 +27,20 @@ public class StudentController {
     {
     	return studentService.login(dto);
     }
-}
+    
+    @PostMapping("/addInfo")
+    public ResponseEntity<?> studentDetaCollection(
+            @RequestParam("pid") String pid,
+            @RequestBody StudentDataCollectionDTO sdc) {
+
+        StudentModel savedStudent = studentService.addStudentDataModel(pid, sdc);
+
+        if (savedStudent != null) {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body("Profile added successfully");
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Student not found or data not saved");
+        }
+    }
+	}
