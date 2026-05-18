@@ -1,6 +1,7 @@
-package com.product.lms.login;
+package com.product.lms.students;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.data.annotation.Id;
@@ -109,7 +110,7 @@ public class StudentModel {
 	    private String githubUrl;
 	    private String naukriUrl;
 
-
+	    private List<String> assignedMentors = new ArrayList<>();
 
 	   
 		public String getEnrollmentDate() {
@@ -389,4 +390,12 @@ public class StudentModel {
 		public void setNaukriUrl(String naukriUrl) {
 			this.naukriUrl = naukriUrl;
 		}
+		public List<String> getAssignedMentors() {
+			return assignedMentors;
+		}
+		public void setAssignedMentors(List<String> assignedMentors) {
+			this.assignedMentors = assignedMentors;
+		}
+		
+		
 }

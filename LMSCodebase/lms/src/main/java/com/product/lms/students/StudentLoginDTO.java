@@ -1,8 +1,8 @@
-package com.product.lms.login;
+package com.product.lms.students;
 
 
 
-public class StudentDTO {
+public class StudentLoginDTO {
 	
 	private String pibId;
     private String password;
