@@ -1,5 +1,6 @@
 package com.product.lms.students;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +22,12 @@ public class AdminController {
 
     @Autowired
     MentorService mentorService;
+    
+    @Autowired 
+    StudentService studentService;
+    
+    @Autowired
+    AdminRepo aRepo;
 
     @PostMapping("/adminLogin")
     public ResponseEntity<String> loginAdmin(
@@ -41,13 +48,13 @@ public class AdminController {
                 .body(result);
     }
 
-    @PostMapping("/assignMentor/{mentorId}/{pibId}")
-    public ResponseEntity<?> assignMentor(
-            @PathVariable String mentorId,
+    
+    @PostMapping("/assignMentor/{pibId}")
+    public String assignMentor(
             @PathVariable String pibId) {
 
-        return ResponseEntity.ok(
-                adminService.assignMentorToStudent(pibId, mentorId));
+        return adminService
+                .assignMentorToStudent(pibId);
     }
 
     @PostMapping("/addMentor")
@@ -97,5 +104,36 @@ public class AdminController {
                 adminService.deleteMentor(mentorId);
 
         return ResponseEntity.ok(response);
+    }
+    
+    @PostMapping("/forgot_StudentPassword")
+    public ResponseEntity<?> forgotStudentPassword(@RequestBody ForgetPasswordDTO fpd) {
+
+        Optional<StudentModel> student = adminService.forgetPassword(fpd.getPibId());
+
+        if (student.isPresent()) {
+
+            return ResponseEntity.ok("New password generated and sent to registered email.");
+
+        } else {
+
+            return ResponseEntity
+                    .badRequest()
+                    .body("Student not found with PIB ID: " + fpd.getPibId());
+        }
+    }
+    
+    @PostMapping("/addCourse")
+    public Course addCourse(
+           
+            @RequestBody Course course) {
+
+        return adminService.addCourse(course);
+    }
+    
+    @GetMapping("/viewAdmins")
+    public ResponseEntity<List<AdminModel>> viewAdmins() {
+
+        return ResponseEntity.ok(adminService.viewAdmins());
     }
 }

@@ -1,11 +1,14 @@
 package com.product.lms.mentor;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.product.lms.students.Activity;
 
 @RestController
 @RequestMapping("/mentor")
@@ -31,15 +34,31 @@ public class MentorController {
     }
 
     @GetMapping("/viewAssignedStudent/{mentorId}")
-    public ResponseEntity<?> viewMentor(@PathVariable String mentorId) {
+    public List<ViewAssignedStudentDTO> viewAssignedStudent(
+            @PathVariable String mentorId) {
 
-        Optional<MentorModel> mentor = mRepo.findById(mentorId);
+        return mentorService.viewAssignedStudent(mentorId);
+    }
+    
+    @PostMapping("/addPlan/{mentorId}")
+    public MentorModel addPlan(
+            @PathVariable String mentorId,
+            @RequestBody Plan plan) {
 
-        if (mentor.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Mentor not found");
-        }
+        return mentorService.addPlan(mentorId, plan);
+    }
 
-        return ResponseEntity.ok(mentor.get());
+    @GetMapping("/viewPlans/{mentorId}")
+    public List<Plan> viewPlans(
+            @PathVariable String mentorId) {
+
+        return mentorService.viewPlans(mentorId);
+    }
+
+    @GetMapping("/viewActivities/{studentId}")
+    public List<String> viewActivities(
+            @PathVariable String studentId) {
+
+        return mentorService.viewActivities(studentId);
     }
 }

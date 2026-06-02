@@ -3,16 +3,24 @@ package com.product.lms.students;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo.Id;
 import com.product.lms.mentor.AddMentorDTO;
 import com.product.lms.mentor.MentorModel;
 import com.product.lms.mentor.MentorRepo;
+import com.product.lms.utility.EmailService;
 
 @Service
 public class AdminService {
+	
+	@Autowired
+	CourseRepo cRepo;
 
     @Autowired
     private AdminRepo ar;
@@ -23,6 +31,8 @@ public class AdminService {
     @Autowired
     private StudentRepo sRepo;
 
+    @Autowired 
+    private EmailService eService;
     private String generateMentorId() {
         long count = mRepo.count() + 1;
         return String.format("MENT%03d", count);
@@ -74,48 +84,71 @@ public class AdminService {
         throw new RuntimeException("No Mentors Found");
     }
 
-    public String assignMentorToStudent(
-            String pibId,
-            String mentorId) {
+    private static int mentorIndex = 0;
 
-        Optional<MentorModel> mentorOptional =
-                mRepo.findById(mentorId);
+    public synchronized String assignMentorToStudent(
+            String pibId) {
 
         Optional<StudentModel> studentOptional =
                 sRepo.findById(pibId);
 
-        if (mentorOptional.isEmpty()) {
-            return "Mentor is not found";
-        }
-
         if (studentOptional.isEmpty()) {
-            return "Student is not found";
+            return "Student not found";
         }
 
-        MentorModel mentor = mentorOptional.get();
         StudentModel student = studentOptional.get();
 
+        // Fetch all mentors
+        List<MentorModel> mentors = mRepo.findAll();
+
+        if (mentors.isEmpty()) {
+            return "No mentors available";
+        }
+
+        // Reset index if exceeds mentor count
+        if (mentorIndex >= mentors.size()) {
+            mentorIndex = 0;
+        }
+
+        // Get mentor sequentially
+        MentorModel mentor = mentors.get(mentorIndex);
+
+        // Initialize student mentor list
         if (student.getAssignedMentors() == null) {
-            student.setAssignedMentors(new ArrayList<>());
+            student.setAssignedMentors(
+                    new ArrayList<>());
         }
 
+        // Initialize mentor student list
         if (mentor.getAssignedStudent() == null) {
-            mentor.setAssignedStudent(new ArrayList<>());
+            mentor.setAssignedStudent(
+                    new ArrayList<>());
         }
 
+        // Prevent duplicate assignment
         if (student.getAssignedMentors()
-                .contains(mentorId)) {
+                .contains(mentor.getMentorId())) {
 
             return "Mentor already assigned";
         }
 
-        student.getAssignedMentors().add(mentorId);
-        mentor.getAssignedStudent().add(pibId);
+        // Assign mentor
+        student.getAssignedMentors()
+                .add(mentor.getMentorId());
 
+        mentor.getAssignedStudent()
+                .add(pibId);
+
+        // Save updates
         sRepo.save(student);
+
         mRepo.save(mentor);
 
-        return "Mentor Assigned Successfully";
+        // Move to next mentor
+        mentorIndex++;
+
+        return "Mentor Assigned Successfully to "
+                + mentor.getMentorName();
     }
 
     public Optional<MentorModel> displayMentorById(
@@ -178,7 +211,8 @@ public class AdminService {
 
         throw new RuntimeException("Mentor Not Found");
     }
-
+    
+    
     public String loginAdmin(AdminDTO adminDTO) {
 
         AdminModel admin =
@@ -196,4 +230,56 @@ public class AdminService {
 
         return "Invalid Password!";
     }
+    
+    
+    
+        // Send email
+        
+        Optional<StudentModel> forgetPassword(String pibId) {
+
+            StudentModel s = sRepo.findByPibId(pibId);
+
+            if (s == null) {
+                return Optional.empty();
+            }
+
+            String mail = s.getEmailId();
+
+            // Check email exists
+            if (mail == null || mail.isBlank()) {
+
+                throw new RuntimeException(
+                        "Student email is missing for PIB ID: " + pibId);
+            }
+
+            // Generate password
+            String newPassword1 = UUID.randomUUID()
+                    .toString()
+                    .replace("-", "")
+                    .substring(0, 8);
+
+            // Save password
+            s.setPassword(newPassword1);
+
+            sRepo.save(s);
+
+            // Send email
+            eService.sendPasswordMail(mail, newPassword1);
+
+            return Optional.of(s);
+        }
+        
+        public Course addCourse(Course course) {
+
+            if (course.getCourseId() != null && !course.getCourseId().isEmpty()) {
+                return cRepo.save(course);
+            }
+
+            throw new RuntimeException("Course ID cannot be null or empty");
+        }
+        
+        public List<AdminModel> viewAdmins() {
+            return ar.findAll();
+        }
+
 }
